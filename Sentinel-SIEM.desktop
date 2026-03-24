@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Sentinel SIEM
+Comment=Launch Sentinel-Py Dashboard
+Exec=bash -c "cd /home/kali/Sentinel-Py && source venv/bin/activate && python3 app.py"
+Icon=security-high
+Terminal=true
+Categories=Development;Security;

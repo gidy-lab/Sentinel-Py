@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentinel-Py SOC Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .action-buttons { display: flex; gap: 10px; }
+        .btn { padding: 8px 16px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; text-decoration: none; font-size: 14px; }
+        .btn-export { background: #238636; color: white; }
+        .btn-purge { background: #da3633; color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 8px; text-align: center; }
+        .card h3 { font-size: 12px; color: #8b949e; margin: 0; text-transform: uppercase; }
+        .card p { font-size: 24px; margin: 10px 0 0; color: #58a6ff; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: #161b22; border-radius: 8px; overflow: hidden; }
+        th { background: #21262d; padding: 12px; text-align: left; color: #8b949e; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #30363d; font-size: 14px; }
+        .trace-link { color: #58a6ff; text-decoration: none; font-size: 12px; margin-left: 8px; }
+        .sev-High { color: #f85149; } .sev-Medium { color: #d29922; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-bar">
+            <h1>SENTINEL-PY // SOC v1.0</h1>
+            <div class="action-buttons">
+                <a href="/export" class="btn btn-export">📥 DOWNLOAD CSV REPORT</a>
+                <button type="submit" form="mainForm" class="btn btn-purge">🗑️ PURGE SELECTED</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card"><h3>Total Incident Logs</h3><p>{{ stats.total }}</p></div>
+            <div class="card"><h3>Critical Threats</h3><p style="color: #f85149;">{{ stats.high }}</p></div>
+            <div class="card"><h3>SOC Status</h3><p style="color: #3fb950;">ACTIVE</p></div>
+        </div>
+
+        <form id="mainForm" action="/delete" method="POST">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" onclick="for(c of document.getElementsByName('log_ids')) c.checked = this.checked"></th>
+                        <th>TIME</th>
+                        <th>THREAT</th>
+                        <th>SOURCE_IP</th>
+                        <th>SEVERITY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr>
+                        <td><input type="checkbox" name="log_ids" value="{{ alert.id }}"></td>
+                        <td>{{ alert.timestamp.strftime('%H:%M:%S') }}</td>
+                        <td>{{ alert.event_type }}</td>
+                        <td>
+                            {{ alert.source_ip }}
+                            <a href="https://www.abuseipdb.com/check/{{ alert.source_ip }}" target="_blank" class="trace-link">🔍 TRACE</a>
+                        </td>
+                        <td class="sev-{{ alert.severity }}">{{ alert.severity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
